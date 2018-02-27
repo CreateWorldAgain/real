@@ -1,0 +1,15 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+
+<div style="background-color:white;height:200px;padding:50px; text-align:center; color:black">
+    @if (ViewBag.Error != "")
+    {
+        <h2 style="color:red">@ViewBag.Error</h2>
+    }
+    else
+    {
+        <h2>File uploaded success</h2>
+    }
+</div>

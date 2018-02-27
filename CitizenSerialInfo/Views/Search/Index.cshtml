@@ -1,0 +1,151 @@
+﻿@{
+    ViewData["Title"] = "Search Page";
+}
+
+
+<script>
+    var searchGrid = undefined;
+
+    function cellPrepared(e) {
+
+        if (e.rowType === "data" && e.column.command === "edit") {
+            var isEditing = e.row.isEditing,
+                $links = e.cellElement.find(".dx-link");
+
+            $links.html("<span style='color:navy; text-decoration:underline'>More info</span>");            
+        }
+    }
+
+    function searchTextChanged() {
+        searchGrid.option("dataSource", []);
+    }
+
+    function editingStart() {
+        setTimeout(function () { $("[aria-label=Save]").hide(); }, 100);  
+
+        $.ajax({
+            type: "GET",
+            url: "/api/searchapi/requestmoreinfo",
+            success: function (data) {
+                debugger
+                if (data.canRequestMoreInfo == false) {
+                    toastr["error"]("You do not have permission to virwe more info");
+                    searchGrid.option("editing", null);
+                }
+            }
+        });        
+    }
+
+</script>
+
+<div style="color:white; margin:0 auto; width:800px; background-color:white;  height:auto;  border:2px solid #304967; padding:0px; margin-top:50px;">
+        <h2 style="background-color: #304967;    margin: 0px;    padding: 5px; border-bottom:1px solid #304967; ">Search</h2>
+
+        <input type="text" onkeydown="searchTextChanged()" id="search-data" name="search-data" required="" class="form-control" style=" margin: auto;
+    width: 70%;   height:40px; margin-top:15px; border-color:#304967;" />
+        <input type="button" class="form-control" value="Search" id="btSearch" style="background-color: rgb(83, 168, 222); 
+    color:white;margin: auto; width: 70%;   height:40px; margin-top:15px; margin-bottom:15px; border-width:0px; " />
+
+     
+
+    </div>
+    <div id="search-result">
+        <div style="color:white; margin:0 auto; width:800px; background-color:white;
+         height:auto;  border:2px solid #304967; padding:0px; margin-top:50px;">
+            <h2 style="background-color: #304967;  margin: 0px;
+         padding: 5px; border-bottom:1px solid #304967; ">
+                Search result
+            </h2>
+
+            @(Html.DevExtreme().DataGrid()
+                            .ID("serials-grid")
+                            .Sorting(sorting => sorting.Mode(GridSortingMode.Multiple))
+                            .ShowBorders(true)
+                            .ShowRowLines(true)
+                            .Height("100%")
+                            .OnEditingStart("editingStart")
+                            .OnCellPrepared("cellPrepared")
+                            .SearchPanel(searchPanel => searchPanel.Visible(true).Width(200))
+                            .Editing(s=>s.AllowAdding(false).AllowDeleting(false).
+                                        AllowUpdating(true).Mode(GridEditMode.Form))
+                            .Export(e => e
+                                .Enabled(true)
+                                .FileName("Serial"))
+                            .HoverStateEnabled(true)
+                            .RowAlternationEnabled(true)
+                            .Paging(paging => paging.Enabled(true))
+                            .StateStoring(s => s
+                                .Enabled(true)
+                                .Type(StateStoringType.LocalStorage)
+                                .StorageKey("serials-search-ersult")
+                            )
+                            .Pager(p => p
+                                .ShowInfo(true)
+                                .ShowNavigationButtons(true)
+                                .ShowPageSizeSelector(true)
+                                .AllowedPageSizes(new int[] { 25, 50, 100 })
+                            )
+                            .HeaderFilter(headerFilter => headerFilter.Visible(true))
+                            .Columns(columns =>
+                            {                                
+                                columns.Add()
+                                    .AllowFiltering(true)
+                                    .AllowEditing(false)
+                                    .DataField("SerialNumber")
+                                    .Caption("Serial number");
+                                columns.Add()
+                                    .AllowEditing(false)
+                                    .Visible(true)
+                                    .AllowFiltering(true)
+                                    .DataField("Model")
+                                    .Caption("Model");
+                                columns.Add()
+                                    .AllowEditing(false)
+                                    .Visible(false)
+                                    .AllowFiltering(true)
+                                    .DataField("Date")
+                                    .DataType(GridColumnDataType.Date)
+                                    .Format(Format.ShortDate)
+                                    .Caption("Date");
+                                columns.Add()
+                                    .AllowEditing(false)
+                                    .Visible(false)
+                                    .AllowFiltering(true)
+                                    .DataField("Reference1")
+                                    .Caption("Reference1");
+                                columns.Add()
+                                    .AllowEditing(false)
+                                    .Visible(false)
+                                    .AllowFiltering(true)
+                                    .DataField("Reference2")
+                                    .Caption("Reference2");
+                            })
+            )
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        $(function () {
+            searchGrid = $("#serials-grid").dxDataGrid("instance");
+            searchGrid.option("dataSource", []);
+        });
+
+        $("#btSearch").click(function () {
+            var searchText = $("#search-data").val();
+            if (searchText != "") {
+                var store = {
+                    "store": DevExpress.data.AspNet.createStore({
+                        "key": "Id",
+                        "loadParams": { "searchText": searchText },
+                        "loadUrl": "/api/searchapi"
+                    })
+                };
+                searchGrid.option("dataSource", store);
+            }
+        });
+
+    </script>

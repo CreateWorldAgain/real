@@ -1,0 +1,10 @@
+{
+  "name": "asp.net",
+  "private": true,
+  "dependencies": {
+    "devextreme": "~17.2",
+    "toastr": "2.1.1",
+    "cldr-data": "29.0.0",
+    "devextreme-aspnet-data": "1.2.5"
+  }
+}

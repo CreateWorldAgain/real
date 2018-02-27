@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+
+<div style="background-color:white;height:200px;padding:50px;">
+    <div style="height:100%;border:1px dashed #3B3F51; padding-top:25px; text-align:center;" onclick="javascript:$('[name=files]').click();">
+        <h4 style="color:navy">Drag file here or click...</h4>
+    </div>
+    <form action="/administration/upload" enctype="multipart/form-data" id="form-upload-file" method="post">
+        <input type="file" name="files" style="display:none">
+    </form>
+</div>
+
+<script>
+    $(function () {
+        $('[name=files]').on('change', function () {
+            $('#form-upload-file').submit();
+        });
+    });
+
+
+</script>
